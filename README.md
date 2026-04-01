@@ -78,33 +78,6 @@ Unlike traditional todo apps, Samay blends **AI + design + emotion** to create a
 
 ---
 
-## 📁 Folder Structure
-
-samay/
-│
-├── app/ # Next.js App Router
-│ ├── layout.js
-│ ├── page.js
-│ └── (routes)
-│
-├── components/ # Reusable UI components
-│ ├── ui/
-│ ├── tasks/
-│ └── animations/
-│
-├── lib/ # Utilities & helpers
-│ ├── api/
-│ ├── hooks/
-│ └── utils.js
-│
-├── styles/ # Global styles
-│
-├── public/ # Static assets (images, icons)
-│
-└── config/ # App configuration
-
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the repository
@@ -135,8 +108,6 @@ OPENAI_API_KEY=your_api_key_here
 
 ## 📸 Screenshots
 
-_Add your UI screenshots here_
-
 ---
 
 ## 🚧 Current Status
@@ -159,12 +130,6 @@ Samay is not just a tool — it's an **experience**.
 ## 🤝 Contributing
 
 Currently a personal project, but contributions may be open in the future.
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License.
 
 ---
 
