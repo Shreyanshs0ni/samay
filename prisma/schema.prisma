@@ -42,7 +42,7 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([userId])
+  @@index([userId, status])
 }
 
 model Session {
@@ -64,8 +64,8 @@ model Session {
 
   createdAt DateTime @default(now())
 
-  @@index([userId])
   @@index([taskId])
+  @@index([userId, startTime])
 }
 
 model Habit {
@@ -100,8 +100,8 @@ model HabitLog {
 
   createdAt DateTime @default(now())
 
-  @@index([habitId])
   @@index([userId])
+  @@unique([habitId, date])
 }
 
 enum TaskStatus {
