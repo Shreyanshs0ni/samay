@@ -1,7 +1,6 @@
-import { auth } from '@clerk/nextjs/server';
+import getCurrentUser from '@/lib/current-user';
 
 export default async function page() {
-  const { userId } = await auth();
-  console.log(userId);
-  return <div>Dashboard</div>;
+  const user = await getCurrentUser();
+  return <div>Hello {user?.name}</div>;
 }
