@@ -1,7 +1,7 @@
-import React from 'react';
+import { auth } from '@clerk/nextjs/server';
 
-const page = () => {
-  return <div>dashboard</div>;
-};
-
-export default page;
+export default async function page() {
+  const { userId } = await auth();
+  console.log(userId);
+  return <div>Dashboard</div>;
+}
