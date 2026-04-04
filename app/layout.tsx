@@ -1,4 +1,5 @@
 import Navbar from '@/components/layout/Navbar';
+import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 
 export default function RootLayout({
@@ -9,8 +10,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-full flex flex-col">
-        <Navbar />
-        {children}
+        <ClerkProvider>
+          <Navbar />
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
