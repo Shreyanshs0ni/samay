@@ -1,13 +1,10 @@
 import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import Image from 'next/image';
 
-export default function Navbar() {
+export function Topbar() {
   return (
-    <div className="flex justify-between p-4">
-      <div className="flex items-center">
-        <Image src="/logo.png" alt="logo" width="50" height="50" />
-        <h1>SAMAY</h1>
-      </div>
+    <div className="flex items-center justify-between w-full">
+      <h2 className="text-sm text-muted-foreground">Welcome back 👋</h2>
+
       <header className="flex justify-end items-center p-4 gap-4 h-16">
         <Show when="signed-out">
           <SignInButton forceRedirectUrl="/dashboard" />

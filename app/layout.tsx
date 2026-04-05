@@ -1,24 +1,31 @@
-import Navbar from '@/components/layout/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import { Outfit, Montserrat } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { Sidebar } from '@/components/layout/Sidevbar';
+import { Topbar } from '@/components/layout/Topbar';
 
 const montserratHeading = Montserrat({ subsets: ['latin'], variable: '--font-heading' });
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <body className="min-h-full flex flex-col">
+      <body className="bg-background text-white">
         <ClerkProvider>
-          <Navbar />
-          {children}
+          <div className="flex h-screen">
+            <aside className="w-64 border-r border-white/10 p-4">
+              <Sidebar />
+            </aside>
+
+            <div className="flex flex-col flex-1">
+              <header className="h-14 border-b border-white/10 flex items-center px-4">
+                <Topbar />
+              </header>
+              <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+            </div>
+          </div>
         </ClerkProvider>
       </body>
     </html>
