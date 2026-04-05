@@ -9,25 +9,36 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique 
-  name      String?
-  email     String   @unique
-  password  String?
-  avatarUrl String?
+  id          String   @id @default(cuid())
+  clerkId     String   @unique
+  name        String?
+  email       String   @unique
+  avatarUrl   String?
+
+  workspaces  Workspace[]
+  aiResponses AIResponse[]   
+
+  createdAt   DateTime @default(now())
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 
   tasks     Task[]
   sessions  Session[]
   habits    Habit[]
-  logs      HabitLog[]
+  goals     Goal[]
 
   createdAt DateTime @default(now())
 }
 
 model Task {
   id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   title       String
   description String?
@@ -38,71 +49,83 @@ model Task {
   dueDate     DateTime?
   completedAt DateTime?
 
-  sessions    Session[]
+  sessions    Session[]  
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([userId, status])
+  @@index([workspaceId, status])
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  id          String   @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
-  title     String
-  type      SessionType
+  title       String
+  type        SessionType
 
-  startTime DateTime
-  endTime   DateTime
-  duration  Int
+  startTime   DateTime
+  endTime     DateTime
 
-  status    SessionStatus @default(PLANNED)
+  status      SessionStatus @default(PLANNED)
 
-  taskId    String?
-  task      Task? @relation(fields: [taskId], references: [id])
+  taskId      String?
+  task        Task? @relation(fields: [taskId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 
-  @@index([taskId])
-  @@index([userId, startTime])
+  @@index([workspaceId, startTime])
 }
 
 model Habit {
   id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   name        String
-  description String?
-
   frequency   Frequency
   targetCount Int
 
-  logs        HabitLog[]
-
   createdAt   DateTime @default(now())
 
-  @@index([userId])
+  logs        HabitLog[]
 }
 
 model HabitLog {
   id        String   @id @default(uuid())
   habitId   String
-  userId    String
-
   habit     Habit @relation(fields: [habitId], references: [id])
-  user      User  @relation(fields: [userId], references: [id])
 
-  date      DateTime
+  date      DateTime @db.Date
   completed Boolean
-  value     Int?
+
+  @@unique([habitId, date])
+}
+
+model Goal {
+  id          String   @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  title       String
+  description String?
+
+  targetDate  DateTime?
+  status      GoalStatus @default(ACTIVE)
+
+  createdAt   DateTime @default(now())
+}
+
+model AIResponse {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  prompt    String
+  response  String
 
   createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@unique([habitId, date])
 }
 
 enum TaskStatus {
@@ -133,4 +156,10 @@ enum SessionStatus {
 enum Frequency {
   DAILY
   WEEKLY
+}
+
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
 }
