@@ -1,6 +1,12 @@
 import Navbar from '@/components/layout/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
+import { Outfit, Montserrat } from 'next/font/google';
+import { cn } from '@/lib/utils';
+
+const montserratHeading = Montserrat({ subsets: ['latin'], variable: '--font-heading' });
+
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-sans' });
 
 export default function RootLayout({
   children,
@@ -8,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn('font-sans', outfit.variable, montserratHeading.variable)}>
       <body className="min-h-full flex flex-col">
         <ClerkProvider>
           <Navbar />
