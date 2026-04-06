@@ -25,6 +25,7 @@ model Category {
   id        String   @id @default(cuid())
   name      String
   color     String   // store hex (e.g. #4F8CFF)
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -1,26 +1,48 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@clerk/nextjs/server';
 
-//get all categories
+// GET all categories
 export async function GET() {
-  const categories = await prisma.category.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
-  return NextResponse.json(categories);
-}
-//create category
-export async function POST(req: Request) {
-  console.log('POST HIT'); // 👈 add this
+  const { userId } = await auth();
 
-  const body = await req.json();
-  const { color, name } = body;
-
-  if (!color || !name) {
-    return NextResponse.json({ error: 'Name and Color required' }, { status: 400 });
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const category = await prisma.category.create({
-    data: { name, color },
+  const categories = await prisma.category.findMany({
+    where: { userId },
   });
-  return NextResponse.json(category);
+
+  return NextResponse.json(categories);
+}
+
+// CREATE category
+export async function POST(req: Request) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+
+    if (!body.name || !body.color) {
+      return NextResponse.json({ error: 'Name and color required' }, { status: 400 });
+    }
+
+    const category = await prisma.category.create({
+      data: {
+        name: body.name,
+        color: body.color,
+        userId,
+      },
+    });
+
+    return NextResponse.json(category);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+  }
 }
