@@ -3,8 +3,8 @@ import Link from 'next/link';
 
 const navItems = [
   { name: 'Tracking', href: '/tracking' },
-  { name: 'Timeline', href: '/timeline' },
   { name: 'Events', href: '/events' },
+  { name: 'Timeline', href: '/timeline' },
   { name: 'Settings', href: '/settings' },
 ];
 

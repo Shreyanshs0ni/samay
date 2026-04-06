@@ -21,6 +21,14 @@ model User {
   createdAt   DateTime @default(now())
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  color     String   // store hex (e.g. #4F8CFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Workspace {
   id        String   @id @default(uuid())
   name      String
