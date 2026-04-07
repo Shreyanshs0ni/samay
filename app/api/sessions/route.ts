@@ -5,14 +5,14 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     // 🔐 1. Get user
-    const { userId } = await auth();
+    // const { userId } = await auth();
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // if (!userId) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // }
 
     //For testing only 😡
-    // const userId = 'test-user';
+    const userId = 'test-user';
 
     // 📦 2. Parse body
     const body = await req.json();
