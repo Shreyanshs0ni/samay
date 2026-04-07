@@ -15,7 +15,12 @@ model User {
   email       String   @unique
   avatarUrl   String?
 
-  workspaces  Workspace[]
+  sessions    Session[]     // ✅ ADD
+  tasks       Task[]        // ✅ ADD
+  categories  Category[]    // ✅ ADD
+  habits      Habit[]       // ✅ ADD
+  goals       Goal[]        // ✅ ADD
+
   aiResponses AIResponse[]   
 
   createdAt   DateTime @default(now())
@@ -24,30 +29,23 @@ model User {
 model Category {
   id        String   @id @default(cuid())
   name      String
-  color     String   // store hex (e.g. #4F8CFF)
+  color     String
+
   userId    String
+  user      User @relation(fields: [userId], references: [id]) // ✅ ADD
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
-model Workspace {
-  id        String   @id @default(uuid())
-  name      String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-
-  tasks     Task[]
-  sessions  Session[]
-  habits    Habit[]
-  goals     Goal[]
-
-  createdAt DateTime @default(now())
-}
 
 model Task {
   id          String   @id @default(uuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id]) // ✅ ADD THIS
 
   title       String
   description String?
@@ -63,34 +61,39 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([workspaceId, status])
+  @@index([userId])
+  @@index([status])
 }
 
 model Session {
-  id          String   @id @default(uuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  id        String   @id @default(uuid())
 
-  title       String
-  type        SessionType
+  userId    String
+  user      User @relation(fields: [userId], references: [id]) // ✅ ADD
 
-  startTime   DateTime
-  endTime     DateTime
+  title     String
+  type      SessionType
 
-  status      SessionStatus @default(PLANNED)
+  startTime DateTime
+  endTime   DateTime?
 
-  taskId      String?
-  task        Task? @relation(fields: [taskId], references: [id])
+  duration  Int?
 
-  createdAt   DateTime @default(now())
+  taskId    String?
+  task      Task? @relation(fields: [taskId], references: [id])
 
-  @@index([workspaceId, startTime])
+  createdAt DateTime @default(now())
+
+  @@index([userId, startTime])
+  @@index([userId, endTime])
+  @@index([userId, createdAt])
 }
 
 model Habit {
   id          String   @id @default(uuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id]) // ✅ ADD
 
   name        String
   frequency   Frequency
@@ -99,6 +102,8 @@ model Habit {
   createdAt   DateTime @default(now())
 
   logs        HabitLog[]
+
+  @@index([userId])
 }
 
 model HabitLog {
@@ -114,8 +119,9 @@ model HabitLog {
 
 model Goal {
   id          String   @id @default(uuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id]) // ✅ ADD
 
   title       String
   description String?
@@ -124,6 +130,8 @@ model Goal {
   status      GoalStatus @default(ACTIVE)
 
   createdAt   DateTime @default(now())
+
+  @@index([userId])
 }
 
 model AIResponse {
@@ -153,13 +161,6 @@ enum SessionType {
   FOCUS
   BREAK
   CUSTOM
-}
-
-enum SessionStatus {
-  PLANNED
-  ACTIVE
-  COMPLETED
-  SKIPPED
 }
 
 enum Frequency {
