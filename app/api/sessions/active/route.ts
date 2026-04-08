@@ -18,9 +18,7 @@ export async function GET() {
         userId,
         endTime: null,
       },
-      include: {
-        task: true, // optional (useful for UI)
-      },
+      include: {},
     });
 
     return NextResponse.json(activeSession);

@@ -16,9 +16,7 @@ model User {
   avatarUrl   String?
 
   sessions    Session[]     // ✅ ADD
-  tasks       Task[]        // ✅ ADD
   categories  Category[]    // ✅ ADD
-  habits      Habit[]       // ✅ ADD
   goals       Goal[]        // ✅ ADD
 
   aiResponses AIResponse[]   
@@ -37,85 +35,33 @@ model Category {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  sessions    Session[]    
+
   @@index([userId])
 }
 
-
-model Task {
-  id          String   @id @default(uuid())
-
-  userId      String
-  user        User @relation(fields: [userId], references: [id]) // ✅ ADD THIS
-
-  title       String
-  description String?
-
-  status      TaskStatus @default(TODO)
-  priority    Priority   @default(MEDIUM)
-
-  dueDate     DateTime?
-  completedAt DateTime?
-
-  sessions    Session[]  
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-}
 
 model Session {
-  id        String   @id @default(uuid())
+  id         String   @id @default(uuid())
 
-  userId    String
-  user      User @relation(fields: [userId], references: [id]) // ✅ ADD
+  userId     String
+  user       User @relation(fields: [userId], references: [id])
 
-  title     String
-  type      SessionType
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  startTime DateTime
-  endTime   DateTime?
+  startTime  DateTime
+  endTime    DateTime?
 
-  duration  Int?
+  duration   Int?
 
-  taskId    String?
-  task      Task? @relation(fields: [taskId], references: [id])
-
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   @@index([userId, startTime])
   @@index([userId, endTime])
-  @@index([userId, createdAt])
 }
 
-model Habit {
-  id          String   @id @default(uuid())
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id]) // ✅ ADD
-
-  name        String
-  frequency   Frequency
-  targetCount Int
-
-  createdAt   DateTime @default(now())
-
-  logs        HabitLog[]
-
-  @@index([userId])
-}
-
-model HabitLog {
-  id        String   @id @default(uuid())
-  habitId   String
-  habit     Habit @relation(fields: [habitId], references: [id])
-
-  date      DateTime @db.Date
-  completed Boolean
-
-  @@unique([habitId, date])
-}
 
 model Goal {
   id          String   @id @default(uuid())
@@ -145,11 +91,6 @@ model AIResponse {
   createdAt DateTime @default(now())
 }
 
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  DONE
-}
 
 enum Priority {
   LOW

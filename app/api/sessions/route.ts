@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     // 📦 2. Parse body
     const body = await req.json();
-    const { title, type, taskId } = body;
+    const { title, type } = body;
 
     if (!title || !type) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -53,7 +53,6 @@ export async function POST(req: Request) {
         type,
         startTime: now,
         endTime: null,
-        taskId: taskId || null,
       },
     });
 

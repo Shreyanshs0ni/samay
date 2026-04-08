@@ -5,6 +5,8 @@ const navItems = [
   { name: 'Tracking', href: '/tracking' },
   { name: 'Events', href: '/events' },
   { name: 'Timeline', href: '/timeline' },
+  { name: 'Goals', href: '/goals' },
+  { name: 'Analytics', href: '/analytics' },
   { name: 'Settings', href: '/settings' },
 ];
 
@@ -12,7 +14,7 @@ export function Sidebar() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center">
-        <Image src="/logo.png" alt="logo" width="50" height="50" />
+        <Image src="/logo.png" alt="logo" width="50" height="50" className="invert" />
         <h1 className="text-xl font-semibold">SAMAY</h1>
       </div>
 
