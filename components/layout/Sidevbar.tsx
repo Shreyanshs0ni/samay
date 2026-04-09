@@ -5,7 +5,6 @@ const navItems = [
   { name: 'Tracking', href: '/tracking' },
   { name: 'Events', href: '/events' },
   { name: 'Timeline', href: '/timeline' },
-  { name: 'Goals', href: '/goals' },
   { name: 'Analytics', href: '/analytics' },
   { name: 'Settings', href: '/settings' },
 ];

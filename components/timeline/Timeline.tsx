@@ -41,6 +41,12 @@ export default function Timeline({ blocks, date }: { blocks: Block[]; date: stri
             </div>
           ))}
         </div>
+        <div
+          className="absolute top-0 bottom-0 w-[2px] bg-red-500 z-10"
+          style={{ left: `${left}%` }}
+        >
+          <span className="absolute -top-5 -left-3 text-[10px] text-red-500">NOW</span>
+        </div>
         {/* Blocks */}
         <Tooltip.Provider>
           {blocks.map((block) => {

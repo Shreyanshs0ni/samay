@@ -17,7 +17,6 @@ model User {
 
   sessions    Session[]     // ✅ ADD
   categories  Category[]    // ✅ ADD
-  goals       Goal[]        // ✅ ADD
 
   aiResponses AIResponse[]   
 
@@ -63,22 +62,6 @@ model Session {
 
 
 
-model Goal {
-  id          String   @id @default(uuid())
-
-  userId      String
-  user        User @relation(fields: [userId], references: [id]) // ✅ ADD
-
-  title       String
-  description String?
-
-  targetDate  DateTime?
-  status      GoalStatus @default(ACTIVE)
-
-  createdAt   DateTime @default(now())
-
-  @@index([userId])
-}
 
 model AIResponse {
   id        String   @id @default(uuid())
@@ -107,10 +90,4 @@ enum SessionType {
 enum Frequency {
   DAILY
   WEEKLY
-}
-
-enum GoalStatus {
-  ACTIVE
-  COMPLETED
-  PAUSED
 }
