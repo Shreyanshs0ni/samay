@@ -22,9 +22,13 @@ export default async function TimelinePage({ searchParams }: { searchParams: { d
       <div className="flex gap-4 mb-4">
         <a href={`?date=${getPrevDate(date)}`}>← Prev</a>
         <a href={`?date=${getNextDate(date)}`}>Next →</a>
-      </div>{' '}
+      </div>
+      {blocks.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+          No sessions today
+        </div>
+      )}
       <Timeline blocks={blocks} date={date} />
-      <div className="text-red-500">Blocks count: {blocks.length}</div>
     </div>
   );
 }

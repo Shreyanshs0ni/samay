@@ -1,30 +1,26 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/current-user';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // const { userId } = await auth();
+    const user = await getCurrentUser();
+    // const user = 'cmnoi68dp0000xpc8b8elb1b4';
 
-    // if (!userId) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-
-    //For testing only 😡
-    const userId = 'test-user';
+    if (!user) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
 
     const activeSession = await prisma.session.findFirst({
       where: {
-        userId,
+        userId: user.id,
         endTime: null,
       },
-      include: {},
     });
 
     return NextResponse.json(activeSession);
   } catch (error) {
-    console.error('GET ACTIVE SESSION ERROR:', error);
-
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('[GET_ACTIVE_SESSION]', error);
+    return new NextResponse('Internal Error', { status: 500 });
   }
 }

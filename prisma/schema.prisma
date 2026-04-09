@@ -41,7 +41,7 @@ model Category {
 
 
 model Session {
-  id         String   @id @default(uuid())
+  id         String @id @default(cuid())
 
   userId     String
   user       User @relation(fields: [userId], references: [id])
@@ -49,7 +49,7 @@ model Session {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
-  startTime  DateTime
+  startTime DateTime @default(now())
   endTime    DateTime?
 
   duration   Int?

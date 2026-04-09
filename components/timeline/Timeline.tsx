@@ -34,19 +34,26 @@ export default function Timeline({ blocks, date }: { blocks: Block[]; date: stri
 
       <div className="relative w-full h-24 border rounded-lg overflow-hidden">
         {/* Time axis */}
-        <div className="absolute inset-0 flex">
-          {[...Array(24)].map((_, i) => (
-            <div key={i} className="flex-1 border-r text-xs text-muted-foreground">
-              {i}
-            </div>
-          ))}
-        </div>
         <div
           className="absolute top-0 bottom-0 w-[2px] bg-red-500 z-10"
           style={{ left: `${left}%` }}
         >
           <span className="absolute -top-5 -left-3 text-[10px] text-red-500">NOW</span>
         </div>
+        <div className="absolute inset-0 flex">
+          {[0, 4, 8, 12, 16, 20].map((hour) => (
+            <div key={hour} className="flex-1 text-center text-xs text-muted-foreground">
+              {hour === 0
+                ? '12 AM'
+                : hour < 12
+                  ? `${hour} AM`
+                  : hour === 12
+                    ? '12 PM'
+                    : `${hour - 12} PM`}
+            </div>
+          ))}
+        </div>
+
         {/* Blocks */}
         <Tooltip.Provider>
           {blocks.map((block) => {
@@ -57,11 +64,12 @@ export default function Timeline({ blocks, date }: { blocks: Block[]; date: stri
               <Tooltip.Root key={block.id}>
                 <Tooltip.Trigger asChild>
                   <div
-                    className="absolute top-6 h-10 rounded-md px-2 text-xs text-white cursor-pointer hover:opacity-80 transition"
+                    className="absolute top-6 h-10 rounded-lg px-3 flex items-center text-xs font-medium text-white shadow-md backdrop-blur-sm transition-all duration-200 hover:scale-[1.03]"
                     style={{
                       left: `${left}%`,
                       width: `${width}%`,
                       backgroundColor: block.category.color,
+                      minWidth: '2%',
                     }}
                   >
                     {block.category.name}
