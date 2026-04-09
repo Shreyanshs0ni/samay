@@ -1,25 +1,21 @@
 import { prisma } from '@/lib/prisma';
 
 export async function getSessionsByDate(userId: string, date: string) {
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
+  // ✅ Force LOCAL day boundaries (not UTC confusion)
+  const [year, month, day] = date.split('-').map(Number);
 
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
+  const endOfDay = new Date(year, month - 1, day, 23, 59, 59);
+
+  console.log('START:', startOfDay);
+  console.log('END:', endOfDay);
 
   return await prisma.session.findMany({
     where: {
-      userId,
-      startTime: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
+      userId: userId, // keep this
     },
     include: {
       category: true,
-    },
-    orderBy: {
-      startTime: 'asc',
     },
   });
 }

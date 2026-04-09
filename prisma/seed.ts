@@ -3,7 +3,13 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const user = await prisma.user.findFirst();
+  const user = await prisma.user.findUnique({
+    where: {
+      clerkId: 'user_3C1i8GT3xITqAqWTb41FY5ymOm3',
+    },
+  });
+
+  console.log('SEED USER:', user.id);
 
   if (!user) {
     console.log('❌ No user found');
@@ -54,6 +60,7 @@ async function main() {
   }
 
   const today = new Date();
+  today.setDate(today.getDate() - 1);
 
   function createTime(hour: number, minute = 0) {
     const d = new Date(today);
