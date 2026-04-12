@@ -16,6 +16,9 @@ export async function GET() {
         userId: user.id,
         endTime: null,
       },
+      include: {
+        category: true,
+      },
     });
 
     return NextResponse.json(activeSession);

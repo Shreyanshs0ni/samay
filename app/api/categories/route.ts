@@ -10,7 +10,7 @@ export async function GET() {
   //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   //   }
   //For testing only 😡
-  const userId = 'test-user';
+  const userId = 'cmnoi68dp0000xpc8b8elb1b4';
 
   const categories = await prisma.category.findMany({
     where: { userId },
@@ -21,13 +21,13 @@ export async function GET() {
 
 // CREATE category
 export async function POST(req: Request) {
-  //   const { userId } = await auth();
+  // const { userId } = await auth();
 
-  //   if (!userId) {
-  //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  //   }
+  // if (!userId) {
+  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // }
   //For testing only 😡
-  const userId = 'test-user';
+  const userId = 'cmnoi68dp0000xpc8b8elb1b4';
 
   try {
     const body = await req.json();
