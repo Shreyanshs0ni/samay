@@ -1,57 +1,78 @@
 'use client';
 import { useState, useEffect } from 'react';
+import type { CategoryDTO } from '@/types/category';
+import type { TimeBlockDTO } from '@/types/timeblock';
+import { apiClient } from '@/lib/apiClient';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/queryKeys';
 
-export default function EventDialog({ open, onClose, block, onSuccess }) {
-  const [categories, setCategories] = useState([]);
+type EventDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  block: TimeBlockDTO | null;
+  onSave: (payload: Record<string, unknown>, id?: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+};
 
-  const [form, setForm] = useState({
-    title: '',
-    startTime: '',
-    endTime: '',
-    categoryId: '',
-    color: '',
-    emoji: '',
-    description: '',
+const defaultForm = {
+  title: '',
+  startTime: '',
+  endTime: '',
+  categoryId: '',
+  color: '',
+  emoji: '',
+  description: '',
+};
+
+export default function EventDialog({ open, onClose, block, onSave, onDelete }: EventDialogProps) {
+  const [form, setForm] = useState(defaultForm);
+  const [pending, setPending] = useState(false);
+
+  const categoriesQuery = useQuery({
+    queryKey: queryKeys.categories,
+    queryFn: apiClient.getCategories,
   });
 
+  const categories = categoriesQuery.data ?? [];
+
   async function handleSubmit() {
-    const payload = {
-      ...form,
-      startTime: new Date(form.startTime),
-      endTime: new Date(form.endTime),
-    };
+    try {
+      setPending(true);
+      const payload = {
+        ...form,
+        startTime: new Date(form.startTime).toISOString(),
+        endTime: new Date(form.endTime).toISOString(),
+      };
 
-    if (block) {
-      await fetch(`/api/timeblocks/${block.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      await fetch(`/api/timeblocks`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      await onSave(
+        {
           ...payload,
-          type: 'planned',
-        }),
-      });
-    }
+          type: block?.type ?? 'planned',
+        },
+        block?.id
+      );
 
-    onSuccess?.();
-    onClose();
+      setForm(defaultForm);
+      onClose();
+    } finally {
+      setPending(false);
+    }
   }
 
   async function handleDelete() {
-    await fetch(`/api/timeblocks/${block.id}`, {
-      method: 'DELETE',
-    });
-
-    onSuccess?.();
-    onClose();
+    if (!block) return;
+    try {
+      setPending(true);
+      await onDelete(block.id);
+      onClose();
+    } finally {
+      setPending(false);
+    }
   }
 
-  function openDialog(block) {
+  useEffect(() => {
+    if (!open) return;
+
     if (block) {
       setForm({
         title: block.title,
@@ -65,15 +86,7 @@ export default function EventDialog({ open, onClose, block, onSuccess }) {
     } else {
       setForm(defaultForm);
     }
-
-    setOpen(true);
-  }
-
-  useEffect(() => {
-    fetch('/api/categories')
-      .then((res) => res.json())
-      .then(setCategories);
-  }, []);
+  }, [block, open]);
 
   if (!open) return null;
   return (
@@ -113,7 +126,7 @@ export default function EventDialog({ open, onClose, block, onSuccess }) {
           className="w-full border p-2 rounded"
         >
           <option value="">No Category</option>
-          {categories.map((cat) => (
+          {categories.map((cat: CategoryDTO) => (
             <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
@@ -133,12 +146,16 @@ export default function EventDialog({ open, onClose, block, onSuccess }) {
         {/* Actions */}
         <div className="flex justify-between">
           {block && (
-            <button onClick={handleDelete} className="text-red-500 text-sm">
+            <button onClick={handleDelete} className="text-red-500 text-sm" disabled={pending}>
               Delete
             </button>
           )}
 
-          <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            onClick={handleSubmit}
+            disabled={pending}
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
             {block ? 'Update' : 'Create'}
           </button>
         </div>

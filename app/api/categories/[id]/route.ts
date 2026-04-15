@@ -1,23 +1,28 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { requireUser } from '@/lib/auth/requireUser';
+import { parseCategoryInput } from '@/lib/validators/category';
+import { deleteCategory, updateCategory } from '@/lib/services/categoryService';
+import { toErrorResponse } from '@/lib/utils/errors';
+import { ok } from '@/lib/utils/api';
 
-//update
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  const body = await req.json();
-  const { name, color } = body;
-
-  const updated = await prisma.category.update({
-    where: { id: params.id },
-    data: { name, color },
-  });
-  return NextResponse.json(updated);
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await requireUser();
+    const { id } = await params;
+    const payload = parseCategoryInput(await req.json());
+    const category = await updateCategory(user.id, id, payload);
+    return ok(category);
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }
 
-//delete
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  await prisma.category.delete({
-    where: { id: params.id },
-  });
-
-  return NextResponse.json({ success: true });
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await requireUser();
+    const { id } = await params;
+    const result = await deleteCategory(user.id, id);
+    return ok(result);
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }

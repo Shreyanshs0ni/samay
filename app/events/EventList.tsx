@@ -1,4 +1,11 @@
-export default function EventList({ blocks = [], onSelect }) {
+import type { TimeBlockDTO } from '@/types/timeblock';
+
+type EventListProps = {
+  blocks?: TimeBlockDTO[];
+  onSelect?: (block: TimeBlockDTO) => void;
+};
+
+export default function EventList({ blocks = [], onSelect }: EventListProps) {
   return (
     <div className="space-y-3 mt-6">
       {blocks.map((block) => (

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
-export function useTimer(startTime: string) {
+export function useTimer(startTime: Date | null) {
   const [time, setTime] = useState(0);
 
   useEffect(() => {
     if (!startTime) return;
 
-    const start = new Date(startTime).getTime();
+    const start = startTime.getTime();
 
     const interval = setInterval(() => {
       const now = Date.now();

@@ -11,41 +11,53 @@ datasource db {
 model User {
   id          String       @id @default(cuid())
   name        String?
-  email       String       @unique
+  email       String?      @unique
   avatarUrl   String?
   createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
   clerkId     String       @unique
   aiResponses AIResponse[]
   categories  Category[]
+  timeBlocks  TimeBlock[]
+
+  @@index([createdAt])
 }
 
 model Category {
   id         String      @id @default(cuid())
-  name       String
-  color      String
+  name       String      @db.VarChar(80)
+  color      String      @db.VarChar(20)
+  isArchived Boolean     @default(false)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
   userId     String
-  user       User        @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   timeBlocks TimeBlock[]
 
-  @@index([userId])
+  @@unique([userId, name])
+  @@index([userId, isArchived])
 }
 
 model TimeBlock {
   id          String    @id @default(cuid())
   userId      String
-  title       String
+  title       String    @db.VarChar(160)
   startTime   DateTime
   endTime     DateTime
   categoryId  String?
   description String?
-  color       String?
+  color       String?   @db.VarChar(20)
   emoji       String?
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
   duration    Int?
-  type        String   @default("tracked") // ✅ FIX
-  category    Category? @relation(fields: [categoryId], references: [id])
+  type        String    @default("tracked")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, startTime])
+  @@index([userId, startTime, endTime])
+  @@index([categoryId])
 }
 
 model AIResponse {

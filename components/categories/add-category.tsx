@@ -3,22 +3,25 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useMutation } from '@tanstack/react-query';
+import { apiClient } from '@/lib/apiClient';
 
 export function AddCategoryButton({ onAdd }: { onAdd: () => void }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [color, setColor] = useState('#4F8CFF');
+  const createMutation = useMutation({
+    mutationFn: apiClient.createCategory,
+    onSuccess: () => {
+      setName('');
+      setColor('#4F8CFF');
+      setOpen(false);
+      onAdd();
+    },
+  });
 
   async function handleCreate() {
-    await fetch('/api/categories', {
-      method: 'POST',
-      body: JSON.stringify({ name, color }),
-    });
-
-    setName('');
-    setColor('#4F8CFF');
-    setOpen(false);
-    onAdd();
+    await createMutation.mutateAsync({ name, color });
   }
 
   return (
@@ -35,7 +38,9 @@ export function AddCategoryButton({ onAdd }: { onAdd: () => void }) {
 
           <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
 
-          <Button onClick={handleCreate}>Create</Button>
+          <Button onClick={handleCreate} disabled={createMutation.isPending}>
+            {createMutation.isPending ? 'Creating...' : 'Create'}
+          </Button>
         </div>
       )}
     </div>

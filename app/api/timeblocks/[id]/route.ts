@@ -1,82 +1,39 @@
-// /api/timeblocks/[id]/route.ts
+import { requireUser } from '@/lib/auth/requireUser';
+import { deleteTimeBlock, getTimeBlock, updateTimeBlock } from '@/lib/services/timeblockService';
+import { parseTimeBlockInput } from '@/lib/validators/timeblock';
+import { ok } from '@/lib/utils/api';
+import { toErrorResponse } from '@/lib/utils/errors';
 
-import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
-
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-  const { userId: clerkId } = await auth();
-
-  if (!clerkId) {
-    return new Response('Unauthorized', { status: 401 });
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await requireUser();
+    const { id } = await params;
+    const timeblock = await getTimeBlock(user.id, id);
+    return ok(timeblock);
+  } catch (error) {
+    return toErrorResponse(error);
   }
-
-  //only for testing 😡
-  //   const userId = 'cmnvozbn90000pwaklfk0b2vo';
-  const body = await req.json();
-
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-  });
-
-  if (!userId) {
-    return new Response('User not found', { status: 404 });
-  }
-
-  // 🔒 Ensure ownership
-  const existing = await prisma.timeBlock.findUnique({
-    where: { id: params.id },
-  });
-
-  if (!existing || existing.userId !== user.id) {
-    return new Response('Forbidden', { status: 403 });
-  }
-
-  const updated = await prisma.timeBlock.update({
-    where: { id: params.id },
-    data: {
-      title: body.title,
-      startTime: new Date(body.startTime),
-      endTime: new Date(body.endTime),
-
-      categoryId: body.categoryId || null,
-      color: body.color || null,
-      emoji: body.emoji || null,
-      description: body.description || null,
-    },
-  });
-
-  return Response.json(updated);
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  //only for testing 😡
-  //   const userId = 'cmnvozbn90000pwaklfk0b2vo';
-
-  const { userId: clerkId } = await auth();
-
-  if (!clerkId) {
-    return new Response('Unauthorized', { status: 401 });
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await requireUser();
+    const { id } = await params;
+    const payload = parseTimeBlockInput(await req.json());
+    const updated = await updateTimeBlock(user.id, id, payload);
+    return ok(updated);
+  } catch (error) {
+    return toErrorResponse(error);
   }
+}
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId },
-  });
-
-  if (!user) {
-    return new Response('User not found', { status: 404 });
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await requireUser();
+    const { id } = await params;
+    const result = await deleteTimeBlock(user.id, id);
+    return ok(result);
+  } catch (error) {
+    return toErrorResponse(error);
   }
-
-  const existing = await prisma.timeBlock.findUnique({
-    where: { id: params.id },
-  });
-
-  if (!existing || existing.userId !== user.id) {
-    return new Response('Forbidden', { status: 403 });
-  }
-
-  await prisma.timeBlock.delete({
-    where: { id: params.id },
-  });
-
-  return new Response('Deleted');
 }

@@ -1,52 +1,26 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-// import { auth } from '@clerk/nextjs/server';
+import { requireUser } from '@/lib/auth/requireUser';
+import { parseCategoryInput } from '@/lib/validators/category';
+import { createCategory, listCategories } from '@/lib/services/categoryService';
+import { toErrorResponse } from '@/lib/utils/errors';
+import { ok } from '@/lib/utils/api';
 
-// GET all categories
 export async function GET() {
-  //   const { userId } = await auth();
-
-  //   if (!userId) {
-  //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  //   }
-  //For testing only 😡
-  const userId = 'cmnvozbn90000pwaklfk0b2vo';
-
-  const categories = await prisma.category.findMany({
-    where: { userId },
-  });
-
-  return NextResponse.json(categories);
+  try {
+    const user = await requireUser();
+    const categories = await listCategories(user.id);
+    return ok(categories);
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }
 
-// CREATE category
 export async function POST(req: Request) {
-  // const { userId } = await auth();
-
-  // if (!userId) {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
-  //For testing only 😡
-  const userId = 'cmnvozbn90000pwaklfk0b2vo';
-
   try {
-    const body = await req.json();
-
-    if (!body.name || !body.color) {
-      return NextResponse.json({ error: 'Name and color required' }, { status: 400 });
-    }
-
-    const category = await prisma.category.create({
-      data: {
-        name: body.name,
-        color: body.color,
-        userId,
-      },
-    });
-
-    return NextResponse.json(category);
+    const user = await requireUser();
+    const payload = parseCategoryInput(await req.json());
+    const category = await createCategory(user.id, payload);
+    return ok(category, { status: 201 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to create category' }, { status: 500 });
+    return toErrorResponse(error);
   }
 }

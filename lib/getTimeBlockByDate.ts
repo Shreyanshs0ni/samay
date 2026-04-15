@@ -1,21 +1,24 @@
 import { prisma } from '@/lib/prisma';
+import { dayEnd, dayStart } from '@/lib/utils/date';
 
 export async function getTimeBlockByDate(userId: string, date: string) {
-  // ✅ Force LOCAL day boundaries (not UTC confusion)
-  const [year, month, day] = date.split('-').map(Number);
+  const parsedDate = new Date(date);
+  const startOfDay = dayStart(parsedDate);
+  const endOfDay = dayEnd(parsedDate);
 
-  const startOfDay = new Date(year, month - 1, day, 0, 0, 0);
-  const endOfDay = new Date(year, month - 1, day, 23, 59, 59);
-
-  console.log('START:', startOfDay);
-  console.log('END:', endOfDay);
-
-  return await prisma.session.findMany({
+  return prisma.timeBlock.findMany({
     where: {
-      userId: userId, // keep this
+      userId,
+      startTime: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
     },
     include: {
       category: true,
+    },
+    orderBy: {
+      startTime: 'asc',
     },
   });
 }

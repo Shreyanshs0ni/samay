@@ -1,20 +1,19 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function transformTimeBlocksToBlocks(timeBlocks: any[]) {
+import type { TimeBlockDTO, TimelineBlockDTO } from '@/types/timeblock';
+
+export function transformTimeBlocksToBlocks(timeBlocks: TimeBlockDTO[]): TimelineBlockDTO[] {
   return timeBlocks.map((timeblock) => {
     const start = new Date(timeblock.startTime);
     const end = new Date(timeblock.endTime);
-
-    const startHour = start.getHours() + start.getMinutes() / 60;
-
-    const endHour = end.getHours() + end.getMinutes() / 60;
-
-    const duration = endHour - startHour;
+    const startMinuteOfDay = start.getHours() * 60 + start.getMinutes();
+    const endMinuteOfDay = end.getHours() * 60 + end.getMinutes();
+    const durationMinutes = Math.max(0, Math.round((end.getTime() - start.getTime()) / 60000));
 
     return {
       id: timeblock.id,
-      start: startHour,
-      end: endHour,
-      duration,
+      title: timeblock.title,
+      startMinuteOfDay,
+      endMinuteOfDay,
+      durationMinutes,
       category: timeblock.category,
     };
   });
