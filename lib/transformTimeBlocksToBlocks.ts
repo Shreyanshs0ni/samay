@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function transformSessionsToBlocks(sessions: any[]) {
-  return sessions.map((session) => {
-    const start = new Date(session.startTime);
-    const end = new Date(session.endTime);
+export function transformTimeBlocksToBlocks(timeBlocks: any[]) {
+  return timeBlocks.map((timeblock) => {
+    const start = new Date(timeblock.startTime);
+    const end = new Date(timeblock.endTime);
 
     const startHour = start.getHours() + start.getMinutes() / 60;
 
@@ -11,11 +11,11 @@ export function transformSessionsToBlocks(sessions: any[]) {
     const duration = endHour - startHour;
 
     return {
-      id: session.id,
+      id: timeblock.id,
       start: startHour,
       end: endHour,
       duration,
-      category: session.category,
+      category: timeblock.category,
     };
   });
 }

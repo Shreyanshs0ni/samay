@@ -1,8 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 import { useEffect, useState } from 'react';
 import { AddCategoryButton } from '@/components/categories/add-category';
-import { useActiveSession } from '@/hooks/useActiveSession';
 import { useTimer } from '@/hooks/useTimer';
 import { formatTime } from '@/lib/format-time';
 
@@ -14,75 +12,83 @@ type Category = {
 
 export default function TrackingPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const { session, loading, refetch } = useActiveSession();
+  const [activeStartTime, setActiveStartTime] = useState<Date | null>(null);
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
+
   const [starting, setStarting] = useState(false);
   const [stopping, setStopping] = useState(false);
-  const seconds = useTimer(session?.startTime);
+
+  const seconds = useTimer(activeStartTime);
 
   async function fetchCategories() {
     try {
       const res = await fetch('/api/categories');
-      if (!res.ok) {
-        console.error('Failed to fetch categories');
-        setCategories([]);
-        return;
-      }
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setCategories(data);
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error(error);
+      console.log(data);
+      setCategories(Array.isArray(data) ? data : []);
+    } catch {
       setCategories([]);
     }
   }
-  const handleStart = async (cat: Category) => {
-    if (starting) return; // 🛑 guard
+
+  // ▶️ START (NO API)
+  const handleStart = (cat: Category) => {
+    if (starting || activeStartTime) return;
 
     setStarting(true);
 
-    await fetch('/api/sessions/start', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        categoryId: cat.id,
-      }),
-    });
+    setActiveStartTime(new Date());
+    setActiveCategory(cat);
 
-    await refetch();
     setStarting(false);
   };
 
+  // ⏹ STOP → CREATE TIMEBLOCK
   const handleStop = async () => {
-    if (stopping) return;
+    if (!activeStartTime || !activeCategory || stopping) return;
 
     setStopping(true);
 
-    await fetch(`/api/sessions/${session?.id}/stop`, {
-      method: 'PATCH',
+    const endTime = new Date();
+
+    await fetch('/api/timeblocks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: activeCategory.name,
+        startTime: activeStartTime,
+        endTime,
+        categoryId: activeCategory.id,
+        color: activeCategory.color,
+        type: 'tracked',
+      }),
     });
 
-    await refetch();
+    // reset state
+    setActiveStartTime(null);
+    setActiveCategory(null);
+
     setStopping(false);
   };
 
   useEffect(() => {
-    fetchCategories();
+    async function load() {
+      await fetchCategories();
+    }
+    load();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-xl font-semibold">Categories</h1>
+
       {/* Categories */}
       <div className="flex flex-wrap gap-3">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleStart(cat)}
-            disabled={!!session}
+            disabled={!!activeStartTime}
             className="px-4 py-2 rounded-xl text-sm text-white"
             style={{ backgroundColor: cat.color }}
           >
@@ -90,15 +96,16 @@ export default function TrackingPage() {
           </button>
         ))}
 
-        {/* Add button */}
         <AddCategoryButton onAdd={fetchCategories} />
       </div>
+
+      {/* Tracking UI */}
       <div className="p-8 flex flex-col items-center justify-center h-screen">
-        {session ? (
+        {activeStartTime && activeCategory ? (
           <div className="p-8 rounded-2xl bg-black text-white text-center space-y-4">
             <h2 className="text-sm opacity-60 animate-pulse">Currently Tracking</h2>
 
-            <h1 className="text-2xl font-semibold">{session.category?.title}</h1>
+            <h1 className="text-2xl font-semibold">{activeCategory.name}</h1>
 
             <div className="text-6xl font-mono">{formatTime(seconds)}</div>
 

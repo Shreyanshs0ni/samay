@@ -1,5 +1,5 @@
-import { getSessionsByDate } from '@/lib/session';
-import { transformSessionsToBlocks } from '@/lib/timeline';
+import { getTimeBlockByDate } from '@/lib/getTimeBlockByDate';
+import { transformTimeBlocksToBlocks } from '@/lib/transformTimeBlocksToBlocks';
 import Timeline from '@/components/timeline/Timeline';
 import { getPrevDate } from '@/lib/getDate';
 import { getCurrentUser } from '@/lib/current-user';
@@ -13,10 +13,9 @@ export default async function TimelinePage({ searchParams }: { searchParams: { d
   const today = new Date();
   const date = searchParams.date || today.toISOString().split('T')[0];
 
-  const sessions = await getSessionsByDate(user.id, date);
-  const blocks = transformSessionsToBlocks(sessions);
+  const sessions = await getTimeBlockByDate(user.id, date);
+  const blocks = transformTimeBlocksToBlocks(sessions);
 
-  console.log('SESSIONS:', sessions);
   return (
     <div>
       <div className="flex gap-4 mb-4">

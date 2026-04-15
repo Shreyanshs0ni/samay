@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 
-export async function getSessionsByDate(userId: string, date: string) {
+export async function getTimeBlockByDate(userId: string, date: string) {
   // ✅ Force LOCAL day boundaries (not UTC confusion)
   const [year, month, day] = date.split('-').map(Number);
 

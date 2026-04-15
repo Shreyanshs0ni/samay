@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+// import { auth } from '@clerk/nextjs/server';
 
 // GET all categories
 export async function GET() {
@@ -10,7 +10,7 @@ export async function GET() {
   //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   //   }
   //For testing only 😡
-  const userId = 'cmnoi68dp0000xpc8b8elb1b4';
+  const userId = 'cmnvozbn90000pwaklfk0b2vo';
 
   const categories = await prisma.category.findMany({
     where: { userId },
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   // }
   //For testing only 😡
-  const userId = 'cmnoi68dp0000xpc8b8elb1b4';
+  const userId = 'cmnvozbn90000pwaklfk0b2vo';
 
   try {
     const body = await req.json();
